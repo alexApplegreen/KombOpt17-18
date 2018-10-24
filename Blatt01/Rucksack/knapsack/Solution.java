@@ -27,8 +27,9 @@ public class Solution extends GenericSolution<Integer> {
 	public void set(int item, Integer quantity) {
 		assert sol.size() > item : "Item number " + item + " not found!";
 		assert sol.get(item) != null : "Item " + item + " not initialized in solution.";
-		this.solValue = instance.getValue(item);
-		this.solWeight = instance.getWeight(item);
+		// TODO add() enlarges arraylist size
+		this.solValue += instance.getValue(item);
+		this.solWeight += instance.getWeight(item);
 		this.sol.add(item, quantity);
 	}
 
@@ -36,11 +37,10 @@ public class Solution extends GenericSolution<Integer> {
 	 * Check if the solution is feasible.
 	 */
 	@Override
-	// TODO Error is here
 	public boolean isFeasible() {
 		int weight = 0;
 		for (int i = 0; i < instance.getSize(); i++) {
-			weight += instance.getWeight(i) * sol.get(i);
+			weight += (instance.getWeight(i) * sol.get(i));
 		}
 		return weight <= instance.getCapacity();
 	}
