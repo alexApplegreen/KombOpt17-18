@@ -36,12 +36,22 @@ public class Solution extends GenericSolution<Integer> {
 	 * Check if the solution is feasible.
 	 */
 	@Override
+	// TODO Error is here
 	public boolean isFeasible() {
 		int weight = 0;
-		for (int i = 0; i < this.sol.size(); i++) {
-			weight += instance.getWeight(i);
+		for (int i = 0; i < instance.getSize(); i++) {
+			weight += instance.getWeight(i) * sol.get(i);
 		}
 		return weight <= instance.getCapacity();
+	}
+
+	// TODO move to Solver?
+	/**
+	 * method to calculate upper bound for this solution
+	 * @return
+	 */
+	public double calculateUpperBound() {
+		return 0.0;
 	}
 
 	/**
