@@ -27,8 +27,10 @@ public class Solution extends GenericSolution<Integer> {
 	public void set(int item, Integer quantity) {
 		assert sol.size() > item : "Item number " + item + " not found!";
 		assert sol.get(item) != null : "Item " + item + " not initialized in solution.";
-		// TODO: update solValue, solWeight, sol[item]
-		// Note: values are visible in this class.
+		// TODO: update sol[item]
+		this.solValue = instance.getValue(item);
+		this.solWeight = instance.getWeight(item);
+		//this.sol[item] = item;
 	}
 
 	/**
