@@ -28,7 +28,7 @@ public class Solution extends GenericSolution<Integer> {
 		assert sol.size() > item : "Item number " + item + " not found!";
 		assert sol.get(item) != null : "Item " + item + " not initialized in solution.";
 		// TODO: update solValue, solWeight, sol[item]
-		// Note: functions to alter solution variables located in instance.java
+		// Note: values are visible in this class.
 	}
 
 	/**
@@ -38,6 +38,11 @@ public class Solution extends GenericSolution<Integer> {
 	public boolean isFeasible() {
 		// TODO: implement this method (and you may then use it in your Solvers)
 		// NOTE: check if the current weight is higher than supported weight
+		int weight = 0;
+		for (int i = 0; i < instance.getWeightArray().length(), i++) {
+			weight += instance.getWeight[i];
+		}
+		return weight <= instance.getCapacity();
 	}
 
 	/**
