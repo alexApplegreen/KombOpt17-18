@@ -31,6 +31,7 @@ public class Solution extends GenericSolution<Integer> {
 		this.solValue += instance.getValue(item);
 		this.solWeight += instance.getWeight(item);
 		this.sol.add(item, quantity);
+		this.sol.remove(sol.size() - 1);
 	}
 
 	/**

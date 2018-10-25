@@ -2,6 +2,7 @@ package knapsack;
 
 import java.io.IOException;
 import knapsack.MySolution;
+import knapsack.Solution;
 
 public class Main {
 	private static final String usage = "Usage: [-v|--verbose] <filename>";
