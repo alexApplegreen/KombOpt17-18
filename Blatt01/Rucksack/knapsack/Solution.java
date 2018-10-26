@@ -27,14 +27,15 @@ public class Solution extends GenericSolution<Integer> {
 	public void set(int item, Integer quantity) {
 		assert sol.size() > item : "Item number " + item + " not found!";
 		assert sol.get(item) != null : "Item " + item + " not initialized in solution.";
-		// TODO add() enlarges arraylist size
-		if (quantity > 0) {
-			this.solValue += instance.getValue(item) * quantity;
-			this.solWeight += instance.getWeight(item) * quantity;
-		}
-		else if (quantity == 0) {
+		// add quantity to value and weight, holds for negative quantity as well
+		if (quantity == 0) {
 			this.solValue -= instance.getValue(item);
 			this.solWeight -= instance.getWeight(item);
+		}
+		// in case of reset subtract value from value and weight
+		else {
+			this.solValue += instance.getValue(item) * quantity;
+			this.solWeight += instance.getWeight(item) * quantity;
 		}
 		this.sol.set(item, quantity);
 	}
@@ -49,15 +50,6 @@ public class Solution extends GenericSolution<Integer> {
 			weight += (instance.getWeight(i) * sol.get(i));
 		}
 		return weight <= instance.getCapacity();
-	}
-
-	// TODO move to Solver?
-	/**
-	 * method to calculate upper bound for this solution
-	 * @return
-	 */
-	public double calculateUpperBound() {
-		return 0.0;
 	}
 
 	/**

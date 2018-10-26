@@ -23,7 +23,7 @@ public class MySolution implements SolverInterface {
      */
     @Override
     public Solution solve(Instance instance) {
-        // TODO stop method from adding last element before loop exits
+        // generate initial solution
         Solution solution = new Solution(instance);
         int i = 0;
         do {
@@ -39,14 +39,5 @@ public class MySolution implements SolverInterface {
         Logger.println("Weight: " + solution.getWeight());
         this.s = solution;
         return s;
-    }
-
-    /**
-     * recursively solves the problem
-     * @param s Solution to start off
-     * @return the maximized solution
-     */
-    private Solution branchAndBound(Solution s) {
-        return null;
     }
 }
