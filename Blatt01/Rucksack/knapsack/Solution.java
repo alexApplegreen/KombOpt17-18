@@ -28,10 +28,15 @@ public class Solution extends GenericSolution<Integer> {
 		assert sol.size() > item : "Item number " + item + " not found!";
 		assert sol.get(item) != null : "Item " + item + " not initialized in solution.";
 		// TODO add() enlarges arraylist size
-		this.solValue += instance.getValue(item);
-		this.solWeight += instance.getWeight(item);
-		this.sol.add(item, quantity);
-		this.sol.remove(sol.size() - 1);
+		if (quantity > 0) {
+			this.solValue += instance.getValue(item) * quantity;
+			this.solWeight += instance.getWeight(item) * quantity;
+		}
+		else if (quantity == 0) {
+			this.solValue -= instance.getValue(item);
+			this.solWeight -= instance.getWeight(item);
+		}
+		this.sol.set(item, quantity);
 	}
 
 	/**

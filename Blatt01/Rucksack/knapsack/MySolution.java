@@ -26,10 +26,16 @@ public class MySolution implements SolverInterface {
         // TODO stop method from adding last element before loop exits
         Solution solution = new Solution(instance);
         int i = 0;
-        while (solution.isFeasible()) {
+        do {
             solution.set(i, 1);
-            i++;
-        }
+            if (!solution.isFeasible()) {
+                solution.set(i, 0);
+                break;
+            }
+            else {
+                i++;
+            }
+        } while(solution.isFeasible());
         Logger.println("Weight: " + solution.getWeight());
         this.s = solution;
         return s;
