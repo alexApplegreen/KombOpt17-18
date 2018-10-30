@@ -10,6 +10,7 @@ public class MySolution implements SolverInterface {
     // Array of quantities to generate all permutations of solutions
     private ArrayList<int[]> solutions;
 
+    // All Solutions generated with quantity List
     private ArrayList<Solution> results;
 
     /**
@@ -52,6 +53,10 @@ public class MySolution implements SolverInterface {
         return results.get(solutionIndex);
     }
 
+    /**
+     * adds trivial solutions to quantity collection,
+     * starts generating quantity array permutations
+     */
     private void generateSolutions() {
         // create array of n zeros
         int[] a = new int[instance.getSize()];
@@ -66,6 +71,11 @@ public class MySolution implements SolverInterface {
         permutate(a, a.length - 1);
     }
 
+    /**
+     * generates all binary permutations of Array
+     * @param a Array to permutate
+     * @param index recursion anchor
+     */
     private void permutate(int[] a, int index) {
         // recursion anchor
         if (index > 0) {
