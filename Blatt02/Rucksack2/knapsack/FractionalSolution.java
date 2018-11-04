@@ -23,12 +23,18 @@ public class FractionalSolution extends GenericSolution<Double> {
 	public void set(int item, Double quantity) {
 		assert sol.size() > item : "Item number " + item + " not found!";
 		assert sol.get(item) != null : "Item " + item + " not initialized in solution.";
-		// TODO: insert correct solution of excerise sheet 1 here
+		this.solValue += instance.getValue(item) * quantity;
+		this.solWeight += instance.getWeight(item) * quantity;
+		this.sol.set(item, quantity);
 	}
 
 	@Override
 	public boolean isFeasible() {
-		// TODO: insert correct solution of excerise sheet 1 here
+		int weight = 0;
+		for (int i = 0; i < instance.getSize(); i++) {
+			weight += (instance.getWeight(i) * sol.get(i));
+		}
+		return weight <= instance.getCapacity();
 	}
 
 	@Override

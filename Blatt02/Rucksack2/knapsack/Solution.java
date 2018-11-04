@@ -27,7 +27,9 @@ public class Solution extends GenericSolution<Integer> {
 	public void set(int item, Integer quantity) {
 		assert sol.size() > item : "Item number " + item + " not found!";
 		assert sol.get(item) != null : "Item " + item + " not initialized in solution.";
-		// TODO: update solValue, solWeight, sol[item]
+		this.solValue += instance.getValue(item) * quantity;
+		this.solWeight += instance.getWeight(item) * quantity;
+		this.sol.set(item, quantity);
 	}
 
 	/**
@@ -35,7 +37,11 @@ public class Solution extends GenericSolution<Integer> {
 	 */
 	@Override
 	public boolean isFeasible() {
-		// TODO: implement this method (and you may then use it in your Solvers)
+		int weight = 0;
+		for (int i = 0; i < instance.getSize(); i++) {
+			weight += (instance.getWeight(i) * sol.get(i));
+		}
+		return weight <= instance.getCapacity();
 	}
 
 	/**
