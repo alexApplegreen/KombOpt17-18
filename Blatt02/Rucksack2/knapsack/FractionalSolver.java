@@ -61,11 +61,11 @@ public class FractionalSolver implements SolverInterface {
                 }
             }
         });
-
+        double scale;
         for (int i = 0; i < quotients.size(); i++) {
-            double scale = 1.0;
+            scale = 1.0;
             int index = quotients.get(i).getIndex();
-            // TODO this is doint weird shit
+            // TODO this is doing weird shit
             if (instance.getWeight(index) < instance.getCapacity()) {
                 s.set(index, scale);
                 if (!s.isFeasible()) {
@@ -73,8 +73,11 @@ public class FractionalSolver implements SolverInterface {
                 }
             }
             else {
-                // if nect elememt does not fot, shrink it down and add it.
-                i++;
+                // if next elememt does not fit, shrink it down and add it.
+                double rest = (instance.getCapacity() - s.getWeight());
+                assert rest > 0 : "Calculation Error";
+                scale = (rest / instance.getWeight(i)) * instance.getValue(i);
+                s.set(index, scale);
             }
         }
         return s;
