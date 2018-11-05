@@ -6,6 +6,7 @@ package knapsack;
  * @author Stephan Beyer
  */
 public class FractionalSolution extends GenericSolution<Double> {
+
 	private double epsilon = 1e-6;
 
 	public FractionalSolution(Instance instance) {
@@ -30,7 +31,7 @@ public class FractionalSolution extends GenericSolution<Double> {
 
 	@Override
 	public boolean isFeasible() {
-		int weight = 0;
+		double  weight = 0;
 		for (int i = 0; i < instance.getSize(); i++) {
 			weight += (instance.getWeight(i) * sol.get(i));
 		}
