@@ -37,6 +37,11 @@ public class FractionalSolver implements SolverInterface {
         this.s = new FractionalSolution(instance);
     }
 
+    /**
+     * Solve given instance
+     * @param instance
+     * @return Solution instance
+     */
     public FractionalSolution solve(Instance instance) {
         // TODO implement this
         // write quotients of value and weight to ArrayList
@@ -48,11 +53,11 @@ public class FractionalSolver implements SolverInterface {
                 quotients.add(i, new Tupel(v, i));
             }
             else {
-                // TODO integer division is performed
                 quotients.add(i, new Tupel((v / w), i));
             }
         }
 
+        // sort quotients arraylist descending
         Collections.sort(quotients, new Comparator() {
             public int compare(Object a, Object b) {
                 Tupel x = (Tupel)a;
@@ -69,29 +74,25 @@ public class FractionalSolver implements SolverInterface {
             }
         });
 
-        Double scale = new Double(0.0);
-        // iterate over elements and add from best to worst
+        Double scale = new Double(1.0);
+        int index;
         for (int i = 0; i < quotients.size(); i++) {
             scale = 1.0;
-            int index = quotients.get(i).getIndex();
-            // if next object fits whole, pack max of 1
-            if (s.getWeight() < instance.getCapacity()) {
-                s.set(index, scale);
-                if (!s.isFeasible()) {
-                    s.set(index, 0.0);
-                }
-            }
-            else {
-                // if next elememt does not fit, shrink it down and add it.
-                Double w = new Double(s.getWeight());
+            index = quotients.get(i).getIndex();
+            s.set(index, 1.0);
+            if (!s.isFeasible()) {
+                s.unset(index);
+
                 Double w_max = new Double(instance.getCapacity());
-                Double wi = new Double(instance.getWeight(i));
-                scale = (w - w_max) / wi;
-                Logger.println("Scale: " + scale);
-                assert scale > 0 : "Calculation Error";
+                Double w_sum = new Double(s.getWeight());
+                Double w_next = new Double(instance.getWeight(index));
+
+                scale = Math.abs(w_sum - w_max) / w_next;
+                assert scale > 0.0 : "Calculation error";
                 s.set(index, scale);
             }
         }
+        Logger.println("Weight: " + s.getWeight());
         return s;
     }
 }

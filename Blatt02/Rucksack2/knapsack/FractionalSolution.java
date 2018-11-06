@@ -24,18 +24,25 @@ public class FractionalSolution extends GenericSolution<Double> {
 	public void set(int item, Double quantity) {
 		assert sol.size() > item : "Item number " + item + " not found!";
 		assert sol.get(item) != null : "Item " + item + " not initialized in solution.";
-		this.solValue += instance.getValue(item) * quantity;
-		this.solWeight += instance.getWeight(item) * quantity;
+		Double value = new Double(instance.getValue(item));
+		Double weight = new Double(instance.getWeight(item));
+		this.solValue += value * quantity;
+		this.solWeight += weight * quantity;
 		this.sol.set(item, quantity);
+	}
+
+	public void unset(int item) {
+		if (sol.get(item) == this.zero()) {
+			throw new RuntimeException("cannot unset Value.");
+		}
+		this.solValue -= instance.getValue(item);
+		this.solWeight -= instance.getWeight(item);
+		this.sol.set(item, 0.0);
 	}
 
 	@Override
 	public boolean isFeasible() {
-		double  weight = 0;
-		for (int i = 0; i < instance.getSize(); i++) {
-			weight += (instance.getWeight(i) * sol.get(i));
-		}
-		return weight <= instance.getCapacity();
+		return solWeight <= instance.getCapacity();
 	}
 
 	@Override
