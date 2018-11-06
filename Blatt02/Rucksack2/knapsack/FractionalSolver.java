@@ -4,13 +4,17 @@ import java.util.*;
 
 public class FractionalSolver implements SolverInterface {
 
+    /**
+     * inner class to store information about indices when calculating
+     * the quotient from instance data
+     */
     private class Tupel {
 
-        private double quotient;
+        private Double quotient;
         private int index;
 
         public Tupel(double quotient, int index) {
-            this.quotient = quotient;
+            this.quotient = new Double(quotient);
             this.index = index;
         }
 
@@ -18,7 +22,7 @@ public class FractionalSolver implements SolverInterface {
             return index;
         }
 
-        public double getQuotient() {
+        public Double getQuotient() {
             return quotient;
         }
     }
@@ -37,12 +41,15 @@ public class FractionalSolver implements SolverInterface {
         // TODO implement this
         // write quotients of value and weight to ArrayList
         for (int i = 0; i < instance.getSize(); i++) {
+            Double v = new Double(instance.getValue(i));
+            Double w = new Double(instance.getWeight(i));
             // catch division by 0 errors
-            if (instance.getWeight(i) == 0) {
-                quotients.add(i, new Tupel(instance.getValue(i), i));
+            if (w == 0.0) {
+                quotients.add(i, new Tupel(v, i));
             }
             else {
-                quotients.add(i, new Tupel((instance.getValue(i) / instance.getWeight(i)), i));
+                // TODO integer division is performed
+                quotients.add(i, new Tupel((v / w), i));
             }
         }
 
@@ -61,12 +68,14 @@ public class FractionalSolver implements SolverInterface {
                 }
             }
         });
-        double scale;
+
+        Double scale = new Double(0.0);
+        // iterate over elements and add from best to worst
         for (int i = 0; i < quotients.size(); i++) {
             scale = 1.0;
             int index = quotients.get(i).getIndex();
-            // TODO this is doing weird shit
-            if (instance.getWeight(index) < instance.getCapacity()) {
+            // if next object fits whole, pack max of 1
+            if (s.getWeight() < instance.getCapacity()) {
                 s.set(index, scale);
                 if (!s.isFeasible()) {
                     s.set(index, 0.0);
@@ -74,9 +83,12 @@ public class FractionalSolver implements SolverInterface {
             }
             else {
                 // if next elememt does not fit, shrink it down and add it.
-                double rest = (instance.getCapacity() - s.getWeight());
-                assert rest > 0 : "Calculation Error";
-                scale = (rest / instance.getWeight(i)) * instance.getValue(i);
+                Double w = new Double(s.getWeight());
+                Double w_max = new Double(instance.getCapacity());
+                Double wi = new Double(instance.getWeight(i));
+                scale = (w - w_max) / wi;
+                Logger.println("Scale: " + scale);
+                assert scale > 0 : "Calculation Error";
                 s.set(index, scale);
             }
         }
