@@ -32,6 +32,15 @@ public class Solution extends GenericSolution<Integer> {
 		this.sol.set(item, quantity);
 	}
 
+	public void unset(int item) {
+		if (sol.get(item) == this.zero()) {
+			throw new RuntimeException("cannot unset Value.");
+		}
+		this.solValue -= instance.getValue(item);
+		this.solWeight -= instance.getWeight(item);
+		this.sol.set(item, 0);
+	}
+
 	/**
 	 * Check if the solution is feasible.
 	 */

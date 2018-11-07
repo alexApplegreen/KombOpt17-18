@@ -1,7 +1,6 @@
 package knapsack;
 
 import java.io.IOException;
-import knapsack.FractionalSolver;
 
 public class Main {
 	private static final String usage = "Usage: [-v|--verbose] <filename>";
@@ -46,7 +45,8 @@ public class Main {
 			System.out.println("# Capacity of knapsack: " + instance.getCapacity());
 			System.out.println("###############################################");
 			System.out.println();
-			runSolver(new FractionalSolver(instance), instance);
+//			runSolver(new FractionalSolver(instance), instance);
+			runSolver(new BinarySolver(instance), instance);
 			break;
 		default:
 			throw new IllegalArgumentException(usage);
