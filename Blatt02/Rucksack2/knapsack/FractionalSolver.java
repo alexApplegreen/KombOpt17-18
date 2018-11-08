@@ -2,6 +2,12 @@ package knapsack;
 
 import java.util.*;
 
+/**
+ * Solution of a fractional knapsack problem
+ *
+ * @author Alexander Tepe, Marcel Joschko
+ */
+
 public class FractionalSolver implements SolverInterface {
 
     /**
@@ -74,6 +80,8 @@ public class FractionalSolver implements SolverInterface {
             }
         });
 
+        // take the first objects where its still feasible
+        // and also add the fractional part of the next element which is not feasible
         Double scale = new Double(1.0);
         int index;
         for (int i = 0; i < quotients.size(); i++) {

@@ -2,6 +2,12 @@ package knapsack;
 
 import java.util.*;
 
+/**
+ * Solution of a fractional knapsack problem
+ *
+ * @author Alexander Tepe, Marcel Joschko
+ */
+
 public class BinarySolver implements SolverInterface {
 
     /**
@@ -74,6 +80,7 @@ public class BinarySolver implements SolverInterface {
             }
         });
 
+        // take the first objects where its still feasible
         int index = 0;
         for (int i = 0; i < instance.getSize(); i++) {
             index = quotients.get(i).getIndex();
