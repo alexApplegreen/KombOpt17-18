@@ -25,7 +25,7 @@ public class ChocoSolver implements SolverInterface {
         IntVar energySum = model.intVar("energySum", 0, vMax);
         IntVar weightSum = model.intVar("weightSum", 0, instance.getCapacity());
         IntVar[] occ = model.intVarArray("occ", instance.getSize(), 0, 1);
-        model.knapsack(occ, energySum, weightSum, instance.getWeightArray(), instance.getValueArray()).post();
+        model.knapsack(occ, energySum, weightSum, instance.getValueArray(), instance.getWeightArray()).post();
         model.setObjective(Model.MAXIMIZE, energySum);
         Solver solver = model.getSolver();
         final Solution[] s = {null};
