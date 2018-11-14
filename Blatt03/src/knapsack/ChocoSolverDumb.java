@@ -15,28 +15,51 @@ public class ChocoSolverDumb implements SolverInterface {
     public Object solve(Instance instance) {
         Model model = new Model();
         int vMax = 0;
+        int vBiggest = 0;
+        int wBiggest = 0;
+
         for (int i = 0; i < instance.getSize(); i++) {
             vMax += instance.getValue(i);
+            if (instance.getValue(i) > vBiggest) {
+                vBiggest = instance.getValue(i);
+            }
+            if (instance.getWeight(i) > wBiggest) {
+                wBiggest = instance.getWeight(i);
+            }
         }
+
+        IntVar weight = model.intVar(0, instance.getCapacity());
         IntVar energySum = model.intVar("energySum", 0, vMax);
-        IntVar weightSum = model.intVar("weightSum", 0, instance.getCapacity());
         IntVar[] occ = model.intVarArray("occ", instance.getSize(), 0, 1);
-        final Solution[] s = {null};
-        model.arithm(weightSum, "<=", instance.getCapacity()).post();
+        IntVar[] values = model.intVarArray("values", instance.getValueArray().length, 0, vBiggest);
+        IntVar[] weights = model.intVarArray("weights", instance.getWeightArray().length, 0, wBiggest);
+
+        model.arithm(weight, "<=", instance.getCapacity()).post();
+
+
         for (int i = 0; i < instance.getSize(); i++) {
-            model.arithm(occ[i], "<=", 1);
+            values[i] = model.intVar(instance.getValue(i));
+            weights[i] = model.intVar(instance.getWeight(i));
         }
+
+        for (int i = 0; i < instance.getSize(); i++) {
+            model.ifThen(
+                    model.arithm(weight, "<", instance.getCapacity()),
+                    model.arithm(occ[i], "=", 1)
+            );
+        }
+
         model.setObjective(Model.MAXIMIZE, energySum);
         Solver solver = model.getSolver();
-        solver.plugMonitor(new IMonitorSolution() {
-            @Override
-            public void onSolution() {
-                s[0] = new Solution(instance);
-                for (int i = 0; i < instance.getSize(); i++) {
-                    s[0].set(i, occ[i].getValue());
-                }
+
+        final Solution[] s = {null};
+        solver.plugMonitor((IMonitorSolution) () -> {
+            s[0] = new Solution(instance);
+            for (int i = 0; i < instance.getSize(); i++) {
+                s[0].set(i, occ[i].getValue());
             }
         });
+
         while (solver.solve());
         Logger.println("weight: " + s[0].getWeight());
         return s[0];
