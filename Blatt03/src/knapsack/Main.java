@@ -45,8 +45,8 @@ public class Main {
 			System.out.println("# Capacity of knapsack: " + instance.getCapacity());
 			System.out.println("###############################################");
 			System.out.println();
-			runSolver(new BinarySolver(instance), instance);
-			runSolver(new ChocoSolver(instance), instance);
+			runSolver(new ChocoSolver(), instance);
+			runSolver(new ChocoSolverDumb(), instance);
 			break;
 		default:
 			throw new IllegalArgumentException(usage);
