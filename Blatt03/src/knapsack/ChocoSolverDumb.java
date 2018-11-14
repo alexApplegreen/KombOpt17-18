@@ -5,6 +5,9 @@ import org.chocosolver.solver.Solver;
 import org.chocosolver.solver.search.loop.monitors.IMonitorSolution;
 import org.chocosolver.solver.variables.IntVar;
 
+/**
+ * NOTE: This thing returns feasible, yet non-optimal solutions
+ */
 public class ChocoSolverDumb implements SolverInterface {
 
     public ChocoSolverDumb() {
@@ -18,6 +21,7 @@ public class ChocoSolverDumb implements SolverInterface {
         int vBiggest = 0;
         int wBiggest = 0;
 
+        // find biggest possibly occuring values to use as upper bounds for variables
         for (int i = 0; i < instance.getSize(); i++) {
             vMax += instance.getValue(i);
             if (instance.getValue(i) > vBiggest) {
@@ -28,12 +32,14 @@ public class ChocoSolverDumb implements SolverInterface {
             }
         }
 
+        // variables
         IntVar weight = model.intVar(0, instance.getCapacity());
         IntVar energySum = model.intVar("energySum", 0, vMax);
         IntVar[] occ = model.intVarArray("occ", instance.getSize(), 0, 1);
         IntVar[] values = model.intVarArray("values", instance.getValueArray().length, 0, vBiggest);
         IntVar[] weights = model.intVarArray("weights", instance.getWeightArray().length, 0, wBiggest);
 
+        // constraints
         model.arithm(weight, "<=", instance.getCapacity()).post();
 
 
