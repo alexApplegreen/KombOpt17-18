@@ -48,7 +48,7 @@ public class Main {
 			System.out.println("Aufgabe 2.a");
 			runSolver(new FractionalSolver(instance), instance);
 			System.out.println();
-			System.out.println("Aufgabe 2.b");
+			System.out.println("Aufgabe 3");
 			runSolver(new BinarySolver(instance), instance);
 			break;
 		default:

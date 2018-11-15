@@ -34,95 +34,158 @@ public class BinarySolver implements SolverInterface {
         }
     }
 
-    private class ListSol {
+    /**
+     * inner class which is representing one node of the search tree
+     * if we start the calcSolution method
+     */
+    private class SolutionList {
         private List<Integer> list;
         private int UB;
-        private int c_star;
+        private int c;
+        private boolean valid;
 
-        public ListSol(List<Integer> list) {
+        public SolutionList(List<Integer> list) {
             this.list = new ArrayList<Integer>(list);
-            calcBounds(this, quotients);
+        }
+
+        public void init() {
+            this.valid = calcBounds(this, quotients);
+        }
+
+        /**
+         * Check if the solution is feasible.
+         */
+        public boolean isFeasible() {
+            int w = 0;
+            for (int i = 0; i < z.list.size(); i++) {
+                w += instance.getWeight(quotients.get(i).getIndex());
+            }
+            return w <= instance.getCapacity();
         }
     }
 
     private Instance instance;
     private Solution s;
     private List<Tupel> quotients;
-    private List<Integer> temp;
-    private ListSol l;
+    private List<Integer> zList;
+    private List<Integer> bestSol;
+    private SolutionList z;
     private int UB_MAX;
-    private int c_star_MAX;
-
+    private int c_MAX;
 
     public BinarySolver(Instance instance) {
         this.instance = instance;
         this.quotients = new ArrayList<Tupel>();
-        this.temp = new ArrayList<Integer>();
-        this.l = new ListSol(temp);
+        this.zList = new ArrayList<Integer>();
+        this.bestSol = new ArrayList<Integer>();
         this.s = new Solution(instance);
+        this.z = new SolutionList(zList);
         this.UB_MAX = 0;
-        this.c_star_MAX = 0;
+        this.c_MAX = 0;
     }
 
-    public void calcBounds(ListSol t, List<Tupel> q) {
+
+    /**
+     * Calculates the "Upper-Bound" (UB) and the c* of the given node
+     * @param z the given Node of the search tree
+     * @param q the sorted quotients list
+     * @return if the exceeds the capacity or not
+     */
+    public boolean calcBounds(SolutionList z, List<Tupel> q) {
+
+        // checks if its feasible
+        if (!z.isFeasible()) {
+            return false;
+        }
+
         int w = 0;
-        int W = instance.getCapacity();
         int c = 0;
-        int i;
-        Logger.println(t.list.get(0));
-        for(i = 0; i < t.list.size(); i++) {
-            if(t.list.get(i) == 1) {
+        int W = instance.getCapacity();
+
+        // the actual value of the list
+        for (int i = 0; i < z.list.size(); i++) {
+            if (z.list.get(i) == 1) {
                 w += instance.getWeight(q.get(i).getIndex());
                 c += instance.getValue(q.get(i).getIndex());
             }
         }
-        for(int j = i; j < q.size(); j++) {
 
-            if(w + instance.getWeight(q.get(j).getIndex()) <= W) {
-                w += instance.getWeight(q.get(j).getIndex());
-                c += instance.getValue(q.get(j).getIndex());
+        int index = 0;
+        //what we could get if we pick the next best objects
+        for (int i = z.list.size(); i < q.size(); i++) {
+            if (w + instance.getWeight(q.get(i).getIndex()) <= W) {
+                w += instance.getWeight(q.get(i).getIndex());
+                c += instance.getValue(q.get(i).getIndex());
             }
             else {
-                if (w < W) {
-                    t.UB = (W - w) * instance.getValue(q.get(j + 1).getIndex())
-                                      / instance.getWeight(q.get(j + 1).getIndex())
-                                      + c;
-                }
-                else {
-                    t.UB = w;
-                }
-                t.c_star = c;
-                return;
+                index = i;
+                break;
+            }
+
+        }
+
+        // also take the fractal part to the upper bound
+        if ((index + 1) < q.size()) {
+            if (w < W) {
+                z.UB = (W - w) * instance.getValue(q.get(index + 1).getIndex())
+                        / instance.getWeight(q.get(index + 1).getIndex())
+                        + c;
+            }
+            else {
+                z.UB = w;
             }
         }
+        z.c = c;
+        return true;
     }
 
-    public void calcSolution(ListSol z) {
+    /**
+     * Calculates recursive the best solution from the quotients list
+     * @param z a new node of the search tree
+     */
+    public void calcSolution(SolutionList z) {
 
-        if(z.UB < UB_MAX && z.c_star < c_star_MAX) {
+        // if the solution is not valid
+        if(!z.valid) {
             return;
         }
 
-        if(z.list.size() == quotients.size() && z.UB == UB_MAX && z.c_star == c_star_MAX) {
-
+        // if the UB and c are lower then the already found ones
+        if(z.UB < UB_MAX && z.c < c_MAX) {
+            return;
         }
 
-        ListSol a = new ListSol(z.list);
-        ListSol b = new ListSol(z.list);
+        // update the best values
+        if(z.UB > UB_MAX) {
+            UB_MAX = z.UB;
+            c_MAX = z.c;
+        }
 
+        // if the list is full and the UB and c are equal, we found our solution
+        if(z.list.size() == quotients.size()) {
+            if(z.c == c_MAX)
+            {
+                this.bestSol = new ArrayList<Integer>(z.list);
+            }
+            return;
+        }
+
+        // create new instances and fork with 1 and 0
+        SolutionList a = new SolutionList(z.list);
+        SolutionList b = new SolutionList(z.list);
+        a.init();
+        b.init();
         a.list.add(1);
         b.list.add(0);
-        if(a.UB >= b.UB) {
-            if(a.c_star >= b.c_star){
-                calcSolution(a);
-            }
-            else
-                calcSolution(a);
-                calcSolution(b);
 
+        // recursive stuff
+        if(a.UB >= b.UB) {
+            calcSolution(a);
+            calcSolution(b);
         }
         else {
             calcSolution(b);
+            calcSolution(a);
         }
     }
 
@@ -163,18 +226,17 @@ public class BinarySolver implements SolverInterface {
             }
         });
 
-        // take the first objects where its still feasible
-        /*
+        // initialize the SolutionList and start the recursion
+        this.z.init();
+        calcSolution(z);
+
+        // write the list in the solution
         int index = 0;
-        for (int i = 0; i < instance.getSize(); i++) {
+        for(int i = 0; i < instance.getSize(); i++) {
             index = quotients.get(i).getIndex();
-            s.set(index, 1);
-            if (!s.isFeasible()) {
-                s.unset(index);
-            }
+            s.set(index, bestSol.get(i));
         }
-        */
-        calcSolution(l);
+
         return s;
     }
 }

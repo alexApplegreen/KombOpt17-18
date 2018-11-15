@@ -100,7 +100,7 @@ public class FractionalSolver implements SolverInterface {
                 s.set(index, scale);
             }
         }
-        Logger.println("Weight: " + s.getWeight());
+
         return s;
     }
 }
