@@ -35,28 +35,65 @@ public class SkyscSolver {
         // 1. create model
         Model model = new Model();
 
-        // 2. create varaibles
+        // 2. create variables
         int k = 0;
-        int[] gamefield_singleDim = new int[instance.getGamefieldSize()];
-        for (int i = 0; i < (int)Math.sqrt(instance.getGamefieldSize()); i++) {
-            for (int j = 0; j < (int)Math.sqrt(instance.getGamefieldSize()); j++) {
+        int[] gamefield_singleDim = new int[(int) Math.pow(instance.getGamefieldSize(), 2.0)];
+
+        for (int i = 0; i < instance.getGamefieldSize(); i++) {
+            for (int j = 0; j < instance.getGamefieldSize(); j++) {
                 gamefield_singleDim[k] = instance.getGamefield()[i][j];
+                k++;
             }
         }
-        IntVar x[][] = model.intVarMatrix((int)Math.sqrt(instance.getGamefieldSize()),
-                                          (int)Math.sqrt(instance.getGamefieldSize()),
+
+        assert (gamefield_singleDim.length == ((int)Math.pow(instance.getGamefieldSize(), 2.0))) : "length differs";
+
+        IntVar x[][] = model.intVarMatrix(instance.getGamefieldSize(),
+                                          instance.getGamefieldSize(),
                                           gamefield_singleDim);
 
+        for (int i = 0; i < x.length; i++) {
+            for (int j = 0; j < x[i].length; j++) {
+                x[i][j] = model.intVar(0, instance.getGamefieldSize());
+            }
+        }
+
+        IntVar north[] = model.intVarArray(instance.getNorth().length, 0, instance.getGamefieldSize());
+        IntVar east[] = model.intVarArray(instance.getEast().length, 0, instance.getGamefieldSize());
+        IntVar south[] = model.intVarArray(instance.getSouth().length, 0, instance.getGamefieldSize());
+        IntVar west[] = model.intVarArray(instance.getWest().length, 0, instance.getGamefieldSize());
+
+        IntVar domain = model.intVar(0, instance.getGamefieldSize());
+
+        IntVar visible[] = model.intVarArray(instance.getGamefieldSize(), 0, instance.getGamefieldSize());
+
         // 3. add constraints
+        for (int i = 0; i < instance.getGamefieldSize(); i++) {
+            model.allDifferent(x[i]).post();
+            for (int j = 0; j < instance.getGamefieldSize(); j++) {
+                model.allDifferent(x[j]).post();
+                model.arithm(x[i][j], "<=", instance.getGamefieldSize()).post();
+                model.arithm(x[i][j], ">=", 0).post();
+            }
+        }
+
+
 
         // 4. get solver and solve model
-        List<Solution> solutions = null;
+        Solver solver = model.getSolver();
+        //List<Solution> solutions = solver.findAllSolutions();
+        if (solver.solve()) {
+            System.out.println("found solution!");
+        }
+        else {
+            System.out.println("no solution found");
+        }
 
         // 5. print solutions
         int size = instance.getGamefieldSize();
-        System.out.println("Number of solutions: " + solutions.size());
+        //System.out.println("Number of solutions: " + solutions.size());
         int cnt = 1;
-        for (Solution solution : solutions) {
+        /*for (Solution solution : solutions) {
             int[][] solutionArray = new int[size][size];
             for (int i = 0; i < size; ++i) {
                 for (int j = 0; j < size; ++j) {
@@ -68,6 +105,6 @@ public class SkyscSolver {
             instance.printSolution();
 
             ++cnt;
-        }
+        }*/
     }
 }
