@@ -54,7 +54,7 @@ public class SkyscSolver {
 
         for (int i = 0; i < x.length; i++) {
             for (int j = 0; j < x[i].length; j++) {
-                x[i][j] = model.intVar(0, instance.getGamefieldSize());
+                x[i][j] = model.intVar(1, instance.getGamefieldSize());
             }
         }
 
@@ -63,25 +63,23 @@ public class SkyscSolver {
         IntVar south[] = model.intVarArray(instance.getSouth().length, 0, instance.getGamefieldSize());
         IntVar west[] = model.intVarArray(instance.getWest().length, 0, instance.getGamefieldSize());
 
-        IntVar domain = model.intVar(0, instance.getGamefieldSize());
-
-        IntVar visible[] = model.intVarArray(instance.getGamefieldSize(), 0, instance.getGamefieldSize());
+        IntVar visible_north[] = model.intVarArray(instance.getGamefieldSize(), 0, instance.getGamefieldSize());
+        IntVar visible_east[] = model.intVarArray(instance.getGamefieldSize(), 0, instance.getGamefieldSize());
 
         // 3. add constraints
         for (int i = 0; i < instance.getGamefieldSize(); i++) {
-            model.allDifferent(x[i]).post();
             for (int j = 0; j < instance.getGamefieldSize(); j++) {
-                model.allDifferent(x[j]).post();
+                model.allDifferent(x[i][j]).post();
                 model.arithm(x[i][j], "<=", instance.getGamefieldSize()).post();
-                model.arithm(x[i][j], ">=", 0).post();
+                model.arithm(x[i][j], ">", 0).post();
+
+
             }
         }
 
-
-
         // 4. get solver and solve model
         Solver solver = model.getSolver();
-        //List<Solution> solutions = solver.findAllSolutions();
+        List<Solution> solutions = solver.findAllSolutions();
         if (solver.solve()) {
             System.out.println("found solution!");
         }
@@ -93,7 +91,7 @@ public class SkyscSolver {
         int size = instance.getGamefieldSize();
         //System.out.println("Number of solutions: " + solutions.size());
         int cnt = 1;
-        /*for (Solution solution : solutions) {
+        for (Solution solution : solutions) {
             int[][] solutionArray = new int[size][size];
             for (int i = 0; i < size; ++i) {
                 for (int j = 0; j < size; ++j) {
@@ -105,6 +103,6 @@ public class SkyscSolver {
             instance.printSolution();
 
             ++cnt;
-        }*/
+        }
     }
 }
