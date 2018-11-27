@@ -45,11 +45,8 @@ public class Main {
 			System.out.println("# Capacity of knapsack: " + instance.getCapacity());
 			System.out.println("###############################################");
 			System.out.println();
-			System.out.println("Aufgabe 2.a");
-			runSolver(new FractionalSolver(instance), instance);
-			System.out.println();
-			System.out.println("Aufgabe 2.b");
 			runSolver(new BinarySolver(instance), instance);
+			runSolver(new SA_Solver(), instance);
 			break;
 		default:
 			throw new IllegalArgumentException(usage);
