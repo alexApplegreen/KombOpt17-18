@@ -4,7 +4,7 @@ import java.util.ArrayList;
 
 enum Cooldown_function {
     linear,
-    polynomial
+    geometric
 }
 
 /**
@@ -49,14 +49,14 @@ public class SA_Solver implements SolverInterface {
         this.iterations_per_t = iterations_per_t;
 
         switch (f) {
-            case polynomial:
+            case geometric:
 
                 if (t_scale > 1 || t_scale < 0) {
                     throw new IllegalArgumentException("scale must be 0 < t_scale < 1");
                 }
 
                 this.t_scale = t_scale;
-                this.f = Cooldown_function.polynomial;
+                this.f = Cooldown_function.geometric;
                 break;
 
             case linear:
@@ -92,63 +92,97 @@ public class SA_Solver implements SolverInterface {
 
     @Override
     public Solution solve(Instance instance) {
-        // TODO do the magic!
         // Solution to store best so far
-        Solution solution = generate_initial(instance);
+        Solution s_star = generate_initial(instance);
+        new Solution(instance);
+        Solution temp;
 
         Logger.println("Temperature: " + T);
         Logger.println("Strategy: " + f);
         Logger.println("decrease in T: " + t_scale);
         Logger.println("iterations per step: " + iterations_per_t);
 
-        switch (this.f) {
+        switch (f) {
+            case geometric:
+                do {
+                    int i = 0;
+                    do {
+                        temp = generate_initial(instance);
+                        if (temp.getValue() > s_star.getValue() ||
+                            Math.random() < Math.pow(Math.E, -(temp.getValue() - s_star.getValue()) / T)) {
+
+                            s_star = temp;
+                            i++;
+                        }
+                    } while (i < iterations_per_t);
+                    T *= t_scale;
+                } while(T > 0.1);
+                break;
+
             case linear:
                 do {
+                    int i = 0;
                     do {
-                        iterations_per_t -= 1;
-                        T -= t_scale;
-                    } while (iterations_per_t != 0);
+                        temp = generate_initial(instance);
+                        if (temp.getValue() > s_star.getValue() ||
+                            Math.random() < Math.pow(Math.E, -(temp.getValue() - s_star.getValue()) / T)) {
+
+                            s_star = temp;
+                            i++;
+                        }
+                    } while (i < iterations_per_t);
+                    T -= t_scale;
                 } while (T != 0);
                 break;
-            case polynomial:
-                do {
-                    do {
-                        iterations_per_t -= 1;
-                        T *= t_scale;
-                    } while (iterations_per_t != 0);
-                } while (T > 0.1);
-                break;
         }
-        Logger.println("Weight: " + solution.getWeight());
-        return solution;
+
+        Logger.println("Weight: " + s_star.getWeight());
+        return s_star;
     }
 
     /**
-     * generate random initial solution
+     * generate random initial feasible solution
      * @param instance knapsack problem
      * @return knapsack solution
      */
     private Solution generate_initial(Instance instance) {
-        String template = Integer.toBinaryString((int)(Math.random() * (Math.pow(2, instance.getSize()))));
-        template = binTrim(template, instance);
+        Solution s = new Solution(instance);
+        String template = "";
+
+        do {
+            template = Integer.toBinaryString((int) (Math.random() * (Math.pow(2, instance.getSize()))));
+            template = binTrim(template, instance);
+            s = binToSolution(template, instance);
+        } while (!s.isFeasible());
 
         return binToSolution(template, instance);
     }
 
     /**
      * get a random neighbor from within radius
-     * @param template binary string
      * @param radius new Neighbor = template +/- radius
      * @param instance problem instance
      * @return knapsack Solution from neighbor
      */
-    private Solution getNeighbor(String template, int radius, Instance instance) {
+    private Solution getNeighbor(Solution solution, int radius, Instance instance) {
+        String template = "";
+
+        for (int i = 0; i < instance.getSize(); i++) {
+            if (solution.get(i) == 1) {
+                template += "1";
+            }
+            else {
+                template += "0";
+            }
+        }
+
         int in = Integer.parseInt(template, 2);
+
         if (Math.random() > 0.5) {
-            in += (int)(Math.random() * radius);
+            in += radius;
         }
         else {
-            in -= (int)(Math.random() * radius);
+            in -= radius;
         }
 
         String sol = Integer.toBinaryString(in);
@@ -159,13 +193,23 @@ public class SA_Solver implements SolverInterface {
 
     /**
      * generates all n neighbors in direct neighborhood
-     * @param template bitVector
      * @param radius int n specifies number of desired neighbors
      * @param instance knapsack problem
      * @return ArrayList of Knapsack Solutions
      */
-    private ArrayList<Solution> getAllNeighbors(String template, int radius, Instance instance) {
+    private ArrayList<Solution> getAllNeighbors(Solution solution, int radius, Instance instance) {
         ArrayList<Solution> neighbors = new ArrayList<>();
+        String template = null;
+
+        for (int i = 0; i < instance.getSize(); i++) {
+            if (solution.get(i) == 1) {
+                template += "1";
+            }
+            else {
+                template += "0";
+            }
+        }
+
         int in = Integer.parseInt(template, 2);
 
         for (int i = 0; i < radius; i++) {
