@@ -32,11 +32,6 @@ public class SA_Solver implements SolverInterface {
      */
     private Cooldown_function f;
 
-    /**
-     * integer counting trials to do before finishing
-     */
-    private int trials;
-
     /*
      * Constructor
      */
@@ -45,49 +40,59 @@ public class SA_Solver implements SolverInterface {
             throw new IllegalArgumentException("Temperature must be positive!");
         }
 
-        this.T = T;
-        this.iterations_per_t = iterations_per_t;
-
         switch (f) {
             case geometric:
-
-                if (t_scale > 1 || t_scale < 0) {
-                    throw new IllegalArgumentException("scale must be 0 < t_scale < 1");
-                }
-
-                this.t_scale = t_scale;
                 this.f = Cooldown_function.geometric;
                 break;
 
             case linear:
 
-                if (t_scale < 0) {
-                    throw new IllegalArgumentException("scale must be > 0");
-                }
-
-                this.t_scale = t_scale;
                 this.f = Cooldown_function.linear;
                 break;
         }
+
+        setT(T);
+        setT_scale(t_scale);
+        setIterations_per_t(iterations_per_t);
     }
 
     /*
      * setter methods
      */
     public SA_Solver() {
-        this(Cooldown_function.linear, 100.0, 1.0, 10);
+        this(Cooldown_function.geometric, 100.0, 0.9, 10);
     }
 
     public void setT(double t) {
+        if (t < 0) {
+            throw new IllegalArgumentException("Temperature cannot be negative");
+        }
         T = t;
     }
 
     public void setIterations_per_t(int iterations_per_t) {
+        if (iterations_per_t < 0) {
+            throw new IllegalArgumentException("iterations per step cannot be negative");
+        }
         this.iterations_per_t = iterations_per_t;
     }
 
     public void setT_scale(double t_scale) {
-        this.t_scale = t_scale;
+        switch (f) {
+            case linear:
+                if (t_scale < 0) {
+                    throw new IllegalArgumentException("scale cannot be negative");
+                }
+                this.t_scale = t_scale;
+                break;
+
+            case geometric:
+                if (t_scale < 0 || t_scale > 1) {
+                    throw new IllegalArgumentException("scale must be 0 < scale < 1");
+                }
+                this.t_scale = t_scale;
+                break;
+        }
     }
 
     @Override
@@ -105,38 +110,36 @@ public class SA_Solver implements SolverInterface {
         switch (f) {
             case geometric:
                 do {
-                    int i = 0;
-                    do {
+                    for (int i = 0; i < iterations_per_t; i++) {
                         temp = generate_initial(instance);
                         if (temp.getValue() > s_star.getValue() ||
-                            Math.random() < Math.pow(Math.E, -(temp.getValue() - s_star.getValue()) / T)) {
+                                Math.random() < Math.pow(Math.E, -(temp.getValue() - s_star.getValue()) / T)) {
 
                             s_star = temp;
                             i++;
                         }
-                    } while (i < iterations_per_t);
+                    }
                     T *= t_scale;
                 } while(T > 0.1);
                 break;
 
             case linear:
                 do {
-                    int i = 0;
-                    do {
+                    for (int i = 0; i < iterations_per_t; i++) {
                         temp = generate_initial(instance);
                         if (temp.getValue() > s_star.getValue() ||
-                            Math.random() < Math.pow(Math.E, -(temp.getValue() - s_star.getValue()) / T)) {
+                                Math.random() < Math.pow(Math.E, -(temp.getValue() - s_star.getValue()) / T)) {
 
                             s_star = temp;
                             i++;
                         }
-                    } while (i < iterations_per_t);
+                    }
                     T -= t_scale;
                 } while (T != 0);
                 break;
         }
 
-        Logger.println("Weight: " + s_star.getWeight());
+        Logger.printlnColor("Weight: " + s_star.getWeight());
         return s_star;
     }
 
@@ -146,8 +149,9 @@ public class SA_Solver implements SolverInterface {
      * @return knapsack solution
      */
     private Solution generate_initial(Instance instance) {
-        Solution s = new Solution(instance);
-        String template = "";
+        new Solution(instance);
+        Solution s;
+        String template;
 
         do {
             template = Integer.toBinaryString((int) (Math.random() * (Math.pow(2, instance.getSize()))));

@@ -13,7 +13,7 @@ public class Main {
 		if (instance.getSize() <= 60) {
 			System.out.println("solution = " + solution);
 		}
-		System.out.println("value = " + solution.getValue());
+		Logger.printlnColor("value = " + solution.getValue());
 		System.out.printf("time = %.3fs\n", (end - start) / 1000.0);
 		assert solution.getInstance() == instance
 		  : "Solution is for another instance!";
@@ -45,8 +45,14 @@ public class Main {
 			System.out.println("# Capacity of knapsack: " + instance.getCapacity());
 			System.out.println("###############################################");
 			System.out.println();
-			runSolver(new BinarySolver(instance), instance);
+			//runSolver(new BinarySolver(instance), instance);
 			runSolver(new SA_Solver(), instance);
+			runSolver(new SA_Solver(), instance);
+			runSolver(new SA_Solver(Cooldown_function.linear, 100, 1, 10), instance);
+			runSolver(new SA_Solver(Cooldown_function.linear, 100, 1, 10), instance);
+			runSolver(new SA_Solver(Cooldown_function.linear, 100, 1, 100), instance);
+			runSolver(new SA_Solver(Cooldown_function.linear, 100, 1, 100), instance);
+
 			break;
 		default:
 			throw new IllegalArgumentException(usage);
