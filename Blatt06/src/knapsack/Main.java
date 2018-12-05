@@ -45,8 +45,11 @@ public class Main {
 			System.out.println("# Capacity of knapsack: " + instance.getCapacity());
 			System.out.println("###############################################");
 			System.out.println();
-			runSolver(new TabuSearch(Criteria.timeout, 5, false), instance);
-			runSolver(new TabuSearch(Criteria.timeout, 5, true), instance);
+			//runSolver(new TabuSearch(Criteria.timeout, 3, false), instance);
+			// 100.000 trials should take about 30 minutes
+			runSolver(new TabuSearch(Criteria.counter, 100000, true), instance);
+			//runSolver(new TabuSearch(Criteria.counter, 1000000, true), instance);
+			//runSolver(new TabuSearch(Criteria.timeout, 1800, true), instance);
 			break;
 		default:
 			throw new IllegalArgumentException(usage);

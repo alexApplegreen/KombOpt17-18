@@ -10,9 +10,6 @@ enum Criteria {
 
 /**
  * algorithm that implements tabusearch
- *
- * NOTE solutions are generated randomly,
- *      finding feasible solutions per chance might take a lot of time
  */
 public class TabuSearch implements SolverInterface {
 
@@ -58,15 +55,23 @@ public class TabuSearch implements SolverInterface {
      */
     @Override
     public Solution solve(Instance instance) {
+
+        Logger.println("Strategy: " + criteria);
+        Logger. println("maximum trials: " + counter);
+        Logger.println("use feasible only: " + useFeasibleOnly);
         Solution solution = generateRandom(instance);
         new Solution(instance);
+        // best solution so far.
         Solution temp;
         temp = solution;
+
         switch (criteria) {
 
             case counter:
-                int i = 0;
-                do {
+
+                int left;
+                for (int i = 0; i < counter; i++) {
+
                     if (useFeasibleOnly) {
                         solution = generateFeasible(instance);
                         if (!isTabu(solution) || solution.getValue() > temp.getValue()) {
@@ -77,6 +82,7 @@ public class TabuSearch implements SolverInterface {
                             tabuList.add(solution);
                         }
                     }
+
                     else {
                         solution = generateRandom(instance);
                         if (!isTabu(solution) || solution.getValue() > temp.getValue()) {
@@ -87,12 +93,20 @@ public class TabuSearch implements SolverInterface {
                             tabuList.add(solution);
                         }
                     }
-                } while (!reachedCounter(i));
-                return solution;
+                    left = counter - i;
+                    System.out.printf("\r%s", "Trials left: " + left);
+                }
+                Logger.println("\nWeight: " + temp.getWeight());
+
+                return temp;
 
             case timeout:
+
                 long end = new Date().getTime() + counter * 1000;
+                long time_left = end;
+                time_left = time_left / 1000;
                 long current_time;
+
                 do {
                     if (useFeasibleOnly) {
                         solution = generateFeasible(instance);
@@ -105,6 +119,7 @@ public class TabuSearch implements SolverInterface {
                             tabuList.add(solution);
                         }
                     }
+
                     else {
                         solution = generateRandom(instance);
                         if (!isTabu(solution) || solution.getValue() > temp.getValue()) {
@@ -116,8 +131,13 @@ public class TabuSearch implements SolverInterface {
                         }
                     }
                     current_time = new Date().getTime();
+                    time_left = (end - current_time) / 1000;
+                    System.out.printf("\r%s", "time left: " + time_left + "s");
+
                 } while (current_time < end);
-                Logger.println("Weight: " + temp.getWeight());
+
+                Logger.println("\nWeight: " + temp.getWeight());
+
                 return temp;
 
             default:
@@ -140,25 +160,23 @@ public class TabuSearch implements SolverInterface {
         return false;
     }
 
-    private boolean reachedCounter(int i) {
-        return i == counter;
-    }
-
     /**
      * generates random feasible solution
      * @return knapsack Solution
      */
     private Solution generateFeasible(Instance instance) {
         Solution solution = new Solution(instance);
-        do {
-            String template = Integer.toBinaryString((int) (Math.random() * Math.pow(2, instance.getSize())));
-            template = trimBinary(template, instance);
-            for (int i = 0; i < template.length(); i++) {
-                if (template.charAt(i) == '1') {
+        for (int i = 0; i < instance.getSize(); i++) {
+            if (Math.random() > 0.5) {
+                if (instance.getWeight(i) + solution.getWeight() > instance.getCapacity()) {
+                    i++;
+                } else {
                     solution.set(i, 1);
                 }
+            } else {
+                i++;
             }
-        } while (!solution.isFeasible());
+        }
         return solution;
     }
 
