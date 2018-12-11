@@ -1,7 +1,6 @@
 package knapsack;
 
-import java.util.HashSet;
-import java.util.Set;
+import java.util.*;
 
 enum CrossoverStrategy {
     onePoint,
@@ -38,8 +37,9 @@ public class GeneticSolver implements SolverInterface {
     /**
      * a set to represent the population
      */
-    private HashSet<Solution> population;
+    private HashMap<Integer, Solution> population;
 
+    // Constructor
     public GeneticSolver(int iterations, int mutationChance, int populationSize, CrossoverStrategy strategy) {
         if (iterations < 0) {
             throw new IllegalArgumentException("iterations must be greater than 0");
@@ -54,26 +54,28 @@ public class GeneticSolver implements SolverInterface {
         this.mutationChance = mutationChance;
         this.strategy = strategy;
         this.populationSize = populationSize;
-        this.population = new HashSet<>();
+        this.population = new HashMap<>();
     }
 
     @Override
     public Object solve(Instance instance) {
         Solution mother = generateRandomFeasible(instance);
         Solution father = generateRandomFeasible(instance);
-        population.add(mother);
-        population.add(father);
+        population.put(mother.getValue(), mother);
+        population.put(father.getValue(), father);
          switch (strategy) {
 
              case twoPoint:
                  for (int i = 0; i < iterations; i++) {
+                     // TODO find best parents from population and cross
+
                     Solution child = twoPointCrossover(mother, father, instance);
                     if ((Math.random() * (double) mutationChance / 100) >= mutationChance) {
                         child = mutate(child, instance);
                     }
-                    population.add(child);
+                    population.put(child.getValue(), child);
                     if (population.size() >= populationSize) {
-                        // TODO remove oldest objects from population
+                        decimatePopulation();
                     }
                     return child;
                  }
@@ -85,6 +87,10 @@ public class GeneticSolver implements SolverInterface {
                  // TODO
          }
          return null;
+    }
+
+    private Solution[] findBest(Instance instance) {
+        return null;
     }
 
     /**
@@ -170,5 +176,30 @@ public class GeneticSolver implements SolverInterface {
      */
     private Solution mutate(Solution solution, Instance instance) {
         return onePointCrossover(solution, solution, instance);
+    }
+
+    /**
+     * kill all members of population that are not feasible OR
+     * below the average value
+     */
+    private void decimatePopulation() {
+        int threshold = 0;
+        int counter = 0;
+        Collection<Solution> pop = population.values();
+        if (!pop.isEmpty()) {
+            for (Solution s : pop) {
+                if (!s.isFeasible()) {
+                    population.remove(s);
+                }
+                threshold += s.getValue();
+                counter++;
+            }
+            threshold = threshold / counter;
+            for (Solution s : pop) {
+                if (s.getValue() < threshold) {
+                    population.remove(s);
+                }
+            }
+        }
     }
 }

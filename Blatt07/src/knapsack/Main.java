@@ -46,7 +46,7 @@ public class Main {
 			System.out.println("###############################################");
 			System.out.println();
 			runSolver(new BinarySolver(instance), instance);
-			runSolver(new GeneticSolver(100, 50, CrossoverStrategy.twoPoint), instance);
+			runSolver(new GeneticSolver(100, 50, 10, CrossoverStrategy.twoPoint), instance);
 			break;
 		default:
 			throw new IllegalArgumentException(usage);
