@@ -5,7 +5,6 @@ import java.util.*;
 enum CrossoverStrategy {
     onePoint,
     twoPoint,
-    mixed
 }
 
 /**
@@ -67,30 +66,59 @@ public class GeneticSolver implements SolverInterface {
 
              case twoPoint:
                  for (int i = 0; i < iterations; i++) {
-                     // TODO find best parents from population and cross
-
-                    Solution child = twoPointCrossover(mother, father, instance);
-                    if ((Math.random() * (double) mutationChance / 100) >= mutationChance) {
-                        child = mutate(child, instance);
-                    }
-                    population.put(child.getValue(), child);
-                    if (population.size() >= populationSize) {
-                        decimatePopulation();
-                    }
-                    return child;
+                     Solution[] fittest = findBest(instance);
+                     mother = fittest[0];
+                     father = fittest[1];
+                     Solution child = twoPointCrossover(mother, father, instance);
+                     if ((Math.random() * (double) mutationChance / 100) >= mutationChance) {
+                         child = mutate(child, instance);
+                     }
+                     population.put(child.getValue(), child);
+                     if (population.size() >= populationSize) {
+                         decimatePopulation();
+                     }
                  }
+                 Logger.println("trials: " + iterations);
+                 Logger.println("Population size: " + populationSize);
+                 Logger.println("Mutation chance: " + mutationChance + "%");
+                 Logger.println("Weight: " + findBest(instance)[0].getWeight());
+                 return findBest(instance)[0];
 
              case onePoint:
-                 // TODO
-
-             case mixed:
-                 // TODO
+                 for (int i = 0; i < iterations; i++) {
+                     Solution[] fittest = findBest(instance);
+                     mother = fittest[0];
+                     father = fittest[1];
+                     Solution child = onePointCrossover(mother, father, instance);
+                     if ((Math.random() * (double) mutationChance / 100) >= mutationChance) {
+                         child = mutate(child, instance);
+                     }
+                     population.put(child.getValue(), child);
+                     if (population.size() >= populationSize) {
+                         decimatePopulation();
+                     }
+                 }
+                 Logger.println("Weight: " + findBest(instance)[0].getWeight());
+                 Logger.println("trials: " + iterations);
+                 Logger.println("Population size: " + populationSize);
+                 return findBest(instance)[0];
          }
          return null;
     }
 
+    /**
+     * searches population for fittest objects and returns them
+     * @param instance knapsack problem
+     * @return array of 2 fittest objects
+     */
     private Solution[] findBest(Instance instance) {
-        return null;
+        Solution best, second;
+        List<Integer> fitness = new ArrayList<>();
+        fitness.addAll(population.keySet());
+        Collections.sort(fitness);
+        best = population.get(fitness.get(fitness.size() - 1));
+        second = population.get(fitness.get(fitness.size() - 2));
+        return new Solution[] {best, second};
     }
 
     /**
@@ -169,13 +197,19 @@ public class GeneticSolver implements SolverInterface {
     }
 
     /**
-     * cross Solution with itself to generate random mutation
+     * flip random entry in bitvector
      * @param solution knapsack Solution
      * @param instance knapsack problem
      * @return knapsack Solution
      */
     private Solution mutate(Solution solution, Instance instance) {
-        return onePointCrossover(solution, solution, instance);
+        int pivot = (int)(Math.random() * instance.getSize());
+        if (solution.get(pivot) == 1) {
+            solution.unset(pivot);
+        } else {
+            solution.set(pivot, 1);
+        }
+        return solution;
     }
 
     /**

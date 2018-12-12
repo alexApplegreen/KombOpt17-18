@@ -45,8 +45,15 @@ public class Main {
 			System.out.println("# Capacity of knapsack: " + instance.getCapacity());
 			System.out.println("###############################################");
 			System.out.println();
-			runSolver(new BinarySolver(instance), instance);
-			runSolver(new GeneticSolver(100, 50, 10, CrossoverStrategy.twoPoint), instance);
+			runSolver(new GeneticSolver(10, 50, 10, CrossoverStrategy.twoPoint), instance);
+			runSolver(new GeneticSolver(10, 50, 100, CrossoverStrategy.twoPoint), instance);
+			runSolver(new GeneticSolver(1000000, 50, 10, CrossoverStrategy.twoPoint), instance);
+			runSolver(new GeneticSolver(10, 100, 10, CrossoverStrategy.twoPoint), instance);
+			runSolver(new GeneticSolver(10, 10, 10, CrossoverStrategy.twoPoint), instance);
+			runSolver(new GeneticSolver(1000000, 100, 10, CrossoverStrategy.twoPoint), instance);
+			runSolver(new GeneticSolver(1000000, 100, 5, CrossoverStrategy.twoPoint), instance);
+			runSolver(new GeneticSolver(1000000, 50, 5, CrossoverStrategy.twoPoint), instance);
+			runSolver(new GeneticSolver(10, 100, 5, CrossoverStrategy.twoPoint), instance);
 			break;
 		default:
 			throw new IllegalArgumentException(usage);
