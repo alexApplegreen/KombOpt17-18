@@ -1,3 +1,6 @@
+/**
+ * Class to represent singular neighborhood of a vertex
+ */
 public class Tupel {
 
     private double edgeCost;

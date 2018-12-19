@@ -8,6 +8,7 @@ public class Vertex {
 
     public Vertex(int id) {
         this.id = id;
+        this.neighbors = new ArrayList<>();
     }
 
     public void addNeighbor(Tupel neighbor) {
